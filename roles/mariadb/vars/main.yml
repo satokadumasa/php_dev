@@ -1,0 +1,17 @@
+mysql_root_password: password
+mysql_db_password: password
+# password settings
+__validate_password: True
+__password_length: 8
+__password_policy: LOW
+__root_new_password: password
+
+# location of socket file
+__socket_path: default 
+
+# project database settings
+__project_db_create: False
+__project_db_name: eccube
+__project_db_encoding: utf8
+__project_db_user_name: eclair
+__project_db_user_password: eclaireclair

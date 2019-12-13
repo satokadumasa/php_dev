@@ -1,0 +1,51 @@
+- name: install git and other dependencies
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - git
+    - nss
+    - nss-util
+    - nspr
+    - curl
+
+- name: install dependencies 
+  yum: 
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - gcc
+    - openssl-devel
+    - libyaml-devel
+    - libffi-devel
+    - readline-devel
+    - zlib-devel
+    - gdbm-devel
+    - ncurses-devel
+
+- name: deploy .bash_profile
+  template:
+    src: .bash_profile
+    dest: ~/.bash_profile
+    mode: 0644
+  become_user: "{{ __working_user }}"
+
+- name: mkdir .bash.d
+  file:
+    path: ~/.bash.d
+    state: directory
+    mode: 0755
+  become_user: "{{ __working_user }}"
+
+- name: stop and disable firewalld
+  service:
+    name: firewalld
+    state: stopped
+    enabled: no
+
+- name: set LANG={{ __locale }} in /etc/locale.conf
+  lineinfile:
+    dest: /etc/locale.conf
+    regexp: "^LANG="
+    line: "LANG={{ __locale }}"
+    backup: yes

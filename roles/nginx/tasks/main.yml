@@ -1,0 +1,52 @@
+# Nginxリポジトリを追加
+- name: NGINX | Installing NGINX repo rpm
+  yum:
+    name: http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+
+- name: NGINX | Installing NGINX
+  yum:
+    name: nginx
+    state: latest
+
+# Nginx設定
+# nginx.conf
+- name: check if my.cnf.bk already deployed
+  stat:
+    path: "/etc/nginx/nginx.conf.bk"
+  register: default_nginx_conf_backup
+
+- name: deploy nginx.conf
+  template:
+    src: "nginx.conf.j2"
+    dest: "/etc/nginx/nginx.conf"
+    owner: root
+    group: root
+    mode: 0644
+
+# default.conf
+- name: check if my.cnf.bk already deployed
+  stat:
+    path: "/etc/nginx/conf.d/default.conf.bk"
+  register: default_default_conf_backup
+
+- name: deploy default.conf
+  template:
+    src: "default.conf.j2"
+    dest: "/etc/nginx/conf.d/default.conf"
+    owner: root
+    group: root
+    mode: 0644
+
+# Nginxを起動
+- name: NGINX | Starting NGINX
+  service:
+    name: nginx
+    state: started
+
+- name: Set autoload nginx
+  become: true
+  command: systemctl enable nginx
+
+- name: restart nginx
+  become: true
+  command: systemctl restart nginx

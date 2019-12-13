@@ -1,0 +1,4 @@
+__version: 2.5.1
+
+__rails_new: False
+__rails__version: ">=5.2.1"

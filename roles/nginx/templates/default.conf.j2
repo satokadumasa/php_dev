@@ -1,0 +1,65 @@
+server {
+    listen 80;
+    server_name eccube2.example.com; #ドメイン
+    root /home/vagrant/Project/eccube; #ドキュメントルート
+    index index.html index.htm index.php;
+    access_log /var/log/nginx/shop.log;
+    error_log /var/log/nginx/shop.error.log;
+        
+    client_max_body_size 16M; #アップロード最大サイズ。商品画像を扱うのでこのくらいあった方がいいでしょう。
+ 
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+ 
+    # クリックジャッキング対策
+    add_header X-Frame-Options SAMEORIGIN;
+ 
+    # XSS対策
+    add_header X-XSS-Protection "1; mode=block"; 
+    add_header X-Content-Type-Options nosniff;
+ 
+    # 403 Forbidden対応方法
+    # ページアクセスできない時シンボリックリンクが有効になっていない可能性あります、
+    # オプションを追加してください
+    disable_symlinks on from=$document_root;
+ 
+    # Authorization ヘッダが取得できない環境への対応
+    #proxy_set_header Authorization $http_authorization;
+ 
+    # .htaccess, .htpasswd, .env等の.(ピリオド)から始まる不可視ファイルをアクセス禁止に
+    location ~ /\. {
+         deny all;
+    }
+ 
+    # アクセス禁止ファイル
+    location ~* (?:/(?:src|app|tests|var|vendor|node_modules|codeception|bin)/.*|/(?:composer|COPYING|Procfile|app.json|gulpfile.js|package.json|package-lock.json|web.config))$ {
+        deny all;
+    }
+     
+    # 画像などの静的ファイル
+    location ~* ^.+\.(?:mp4|ttf|jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|txt|bz2|doc|xls|ppt|tar|mid|midi|wav|bmp|rtf|wmv)$ {
+        # ログ出力の有無はお好みで
+        access_log off;
+        log_not_found off; 
+        if (-f $request_filename) {
+            #ブラウザキャッシュの有効時間。ここもお好みに応じて。
+            expires 60m;
+            break;
+        }
+    }
+ 
+    # PHP設定
+    location ~ \.php$ {
+        # このディレクティブの設定はディストリビューション/パッケージに依る。
+        # （これはCentOS 7での設定例）
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        include /etc/nginx/fastcgi_params;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        # Authorization ヘッダが取得できない環境への対応
+        #fastcgi_param HTTP_AUTHORIZATION $http_authorization; 
+        fastcgi_pass   unix:/var/run/php-fpm/php-fpm.sock;
+    }
+}
+

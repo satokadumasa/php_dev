@@ -1,0 +1,5 @@
+__version: stable
+__port: 6379
+__data_dir: /var/lib/redis
+__log_dir: /var/log/redis
+__log_level: notice

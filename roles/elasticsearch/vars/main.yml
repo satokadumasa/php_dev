@@ -1,0 +1,4 @@
+__version: 5.6.8
+__port: 9200
+__jvm_xms: 512m
+__jvm_xmx: 512m
