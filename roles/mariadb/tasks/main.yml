@@ -82,7 +82,7 @@
 - name: check if mysql-clients.cnf.bk already deployed
   stat:
     path: "/etc/my.cnf.d/mysql-clients.cnf.bk"
-  register: default_mysql-clients_conf_backup
+  register: default_mysql_clients_conf_backup
 
 - name: deploy mysql-clients.cnf
   template:
